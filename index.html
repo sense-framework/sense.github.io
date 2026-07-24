@@ -1,93 +1,276 @@
-<!DOCTYPE html>
-<html lang="en" dir="ltr">
-  <head>
-    <meta charset="UTF-8">
-    <title> 01001101H  | Home </title>
-    <link rel="stylesheet" href="style.css">
-    <!-- Boxicons CDN Link -->
-    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
-     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-   </head>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="SENSE Framework — experimental research into continuous, embodied, stateful artificial intelligence.">
+  <meta name="theme-color" content="#070a0f">
+  <title>SENSE Framework</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #070a0f;
+      --panel: rgba(16, 22, 32, 0.78);
+      --panel-strong: #101620;
+      --text: #f3f6fb;
+      --muted: #9aa7b8;
+      --line: rgba(255,255,255,.11);
+      --accent: #ff405d;
+      --accent-soft: rgba(255,64,93,.15);
+      --cyan: #75e8ff;
+      --max: 1120px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at 78% 8%, rgba(117,232,255,.11), transparent 30rem),
+        radial-gradient(circle at 15% 30%, rgba(255,64,93,.12), transparent 28rem),
+        linear-gradient(180deg, #070a0f 0%, #090d14 55%, #070a0f 100%);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+
+    a { color: inherit; }
+    .shell { width: min(calc(100% - 32px), var(--max)); margin: 0 auto; }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 1px solid var(--line);
+      background: rgba(7,10,15,.78);
+      backdrop-filter: blur(18px);
+    }
+
+    nav {
+      min-height: 68px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 11px;
+      text-decoration: none;
+      font-weight: 760;
+      letter-spacing: .06em;
+    }
+
+    .mark {
+      width: 30px;
+      aspect-ratio: 1;
+      border: 1px solid rgba(255,64,93,.7);
+      border-radius: 9px;
+      position: relative;
+      box-shadow: 0 0 28px rgba(255,64,93,.18);
+    }
+    .mark::before, .mark::after {
+      content: "";
+      position: absolute;
+      inset: 6px;
+      border: 1px solid rgba(117,232,255,.65);
+      transform: rotate(45deg);
+      border-radius: 3px;
+    }
+    .mark::after { inset: 10px; border-color: rgba(255,255,255,.8); }
+
+    .nav-links { display: flex; gap: 22px; align-items: center; }
+    .nav-links a { color: var(--muted); text-decoration: none; font-size: .92rem; }
+    .nav-links a:hover { color: var(--text); }
+
+    .hero {
+      min-height: 72vh;
+      display: grid;
+      grid-template-columns: minmax(0, 1.25fr) minmax(280px, .75fr);
+      align-items: center;
+      gap: 64px;
+      padding: 96px 0 72px;
+    }
+
+    .eyebrow {
+      margin: 0 0 18px;
+      color: var(--cyan);
+      font-size: .76rem;
+      font-weight: 760;
+      letter-spacing: .17em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 900px;
+      font-size: clamp(3rem, 8vw, 6.8rem);
+      line-height: .94;
+      letter-spacing: -.065em;
+    }
+
+    .gradient {
+      background: linear-gradient(90deg, #fff 12%, var(--cyan) 47%, #ff8295 88%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .lede {
+      max-width: 720px;
+      margin: 28px 0 0;
+      color: #bbc5d2;
+      font-size: clamp(1.04rem, 2vw, 1.24rem);
+    }
+
+    .actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 34px; }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 0 18px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      text-decoration: none;
+      font-weight: 680;
+      background: rgba(255,255,255,.035);
+    }
+    .button.primary { background: var(--accent); border-color: var(--accent); color: white; }
+    .button:hover { transform: translateY(-1px); filter: brightness(1.08); }
+
+    .status-card {
+      position: relative;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--panel);
+      box-shadow: 0 28px 90px rgba(0,0,0,.3);
+      overflow: hidden;
+    }
+    .status-card::before {
+      content: "";
+      position: absolute;
+      width: 150px;
+      height: 150px;
+      right: -45px;
+      top: -55px;
+      border-radius: 50%;
+      background: var(--accent-soft);
+      filter: blur(6px);
+    }
+    .status-title { margin: 0 0 20px; color: var(--muted); font-size: .76rem; letter-spacing: .14em; text-transform: uppercase; }
+    .metric { display: flex; justify-content: space-between; gap: 20px; padding: 13px 0; border-top: 1px solid var(--line); }
+    .metric span { color: var(--muted); }
+    .metric strong { font-size: .9rem; text-align: right; }
+
+    section { padding: 76px 0; }
+    .section-head { max-width: 760px; margin-bottom: 34px; }
+    h2 { margin: 0 0 12px; font-size: clamp(2rem, 5vw, 3.5rem); line-height: 1; letter-spacing: -.045em; }
+    .section-head p { color: var(--muted); margin: 0; font-size: 1.05rem; }
+
+    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+    .card {
+      padding: 25px;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,.025);
+    }
+    .card .number { color: var(--accent); font-size: .76rem; font-weight: 780; letter-spacing: .13em; }
+    .card h3 { margin: 12px 0 8px; font-size: 1.22rem; }
+    .card p { margin: 0; color: var(--muted); }
+
+    .boundary {
+      padding: 26px;
+      border-left: 3px solid var(--cyan);
+      background: rgba(117,232,255,.055);
+      border-radius: 0 14px 14px 0;
+      color: #c4ceda;
+    }
+
+    footer { border-top: 1px solid var(--line); padding: 30px 0 44px; color: var(--muted); }
+    .footer-row { display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+
+    @media (max-width: 780px) {
+      .nav-links a:not(:last-child) { display: none; }
+      .hero { grid-template-columns: 1fr; gap: 36px; padding-top: 72px; }
+      .grid { grid-template-columns: 1fr; }
+      .status-card { max-width: 580px; }
+    }
+  </style>
+</head>
 <body>
-  <div class="sidebar">
-    <div class="logo-details">
-      <i class='bx bxl-c-plus-plus icon'></i>
-        <div class="logo_name">Words</div>
-        <i class='bx bx-menu' id="btn" ></i>
+  <header>
+    <nav class="shell" aria-label="Primary navigation">
+      <a class="brand" href="#top" aria-label="SENSE home"><span class="mark" aria-hidden="true"></span><span>SENSE</span></a>
+      <div class="nav-links">
+        <a href="#research">Research</a>
+        <a href="#principles">Principles</a>
+        <a href="https://github.com/sense-framework" rel="noreferrer">GitHub</a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="top">
+    <div class="shell hero">
+      <div>
+        <p class="eyebrow">Experimental AI research framework</p>
+        <h1>Intelligence as a <span class="gradient">continuous living process.</span></h1>
+        <p class="lede">SENSE explores artificial systems in which perception, physiology, memory, identity, goals, action, structure, and environment modify one another through time.</p>
+        <div class="actions">
+          <a class="button primary" href="#research">Explore the program</a>
+          <a class="button" href="https://github.com/sense-framework" rel="noreferrer">View public GitHub</a>
+        </div>
+      </div>
+
+      <aside class="status-card" aria-label="Research status">
+        <p class="status-title">Research status</p>
+        <div class="metric"><span>Architecture</span><strong>Continuous &amp; embodied</strong></div>
+        <div class="metric"><span>Learning</span><strong>Local and developmental</strong></div>
+        <div class="metric"><span>Continuity</span><strong>Stateful &amp; checkpointed</strong></div>
+        <div class="metric"><span>Evidence</span><strong>Experimental</strong></div>
+      </aside>
     </div>
-    <ul class="nav-list">
-      <li>
-          <i class='bx bx-search' ></i>
-         <input type="text" placeholder="Search...">
-         <span class="tooltip">Search</span>
-      </li>
-      <li>
-        <a href="#">
-          <i class='bx bx-grid-alt'></i>
-          <span class="links_name">0</span>
-        </a>
-         <span class="tooltip">Click</span>
-      </li>
-      <li>
-       <a href="#">
-         <i class='bx bx-user' ></i>
-         <span class="links_name">User</span>
-       </a>
-       <span class="tooltip">User</span>
-     </li>
-     <li>
-       <a href="#">
-         <i class='bx bx-chat' ></i>
-         <span class="links_name">Messages</span>
-       </a>
-       <span class="tooltip">Messages</span>
-     </li>
-     <li>
-       <a href="#">
-         <i class='bx bx-pie-chart-alt-2' ></i>
-         <span class="links_name">Analytics</span>
-       </a>
-       <span class="tooltip">Analytics</span>
-     </li>
-     <li>
-       <a href="#">
-         <i class='bx bx-folder' ></i>
-         <span class="links_name">File Manager</span>
-       </a>
-       <span class="tooltip">Files</span>
-     </li>
-     <li>
-       <a href="#">
-         <i class='bx bx-cart-alt' ></i>
-         <span class="links_name">Order</span>
-       </a>
-       <span class="tooltip">Order</span>
-     </li>
-     <li>
-       <a href="#">
-         <i class='bx bx-heart' ></i>
-         <span class="links_name">Saved</span>
-       </a>
-       <span class="tooltip">Saved</span>
-     </li>
-     <li>
-       <a href="#">
-         <i class='bx bx-cog' ></i>
-         <span class="links_name">Setting</span>
-       </a>
-       <span class="tooltip">Setting</span>
-     </li>
-           </div>
-         </div>
-         <i class='bx bx-log-out' id="log_out" ></i>
-     </li>
-    </ul>
-  </div>
-  <section class="home-section">
-      <div class="text">Dashboard</div>
-  </section>
 
-  <script src="script.js"></script>
+    <section id="research">
+      <div class="shell">
+        <div class="section-head">
+          <p class="eyebrow">Research program</p>
+          <h2>One framework, several interacting scales.</h2>
+          <p>The program studies mechanisms that are usually separated: cognition, physiological regulation, local tissue dynamics, memory, development, embodiment, and durable continuity.</p>
+        </div>
+        <div class="grid">
+          <article class="card"><span class="number">01</span><h3>Continuous state</h3><p>The system advances as one history-dependent process rather than resetting its effective identity at every interaction.</p></article>
+          <article class="card"><span class="number">02</span><h3>Embodied causality</h3><p>Learning is evaluated through consequences in an environment, including energy, risk, damage, recovery, and goal progress.</p></article>
+          <article class="card"><span class="number">03</span><h3>Local learning</h3><p>Research focuses on locally available activity, eligibility, modulation, replay, and delayed consequence rather than relying only on global credit assignment.</p></article>
+          <article class="card"><span class="number">04</span><h3>Developmental change</h3><p>Fast adaptation and slower structural consolidation are treated as distinct timescales with validation, provenance, and rollback.</p></article>
+        </div>
+      </div>
+    </section>
 
+    <section id="principles">
+      <div class="shell">
+        <div class="section-head">
+          <p class="eyebrow">Research discipline</p>
+          <h2>Claims follow evidence.</h2>
+        </div>
+        <div class="boundary">SENSE is experimental research. The work does not, by itself, establish general intelligence, subjective consciousness, biological equivalence, or superiority to established machine-learning architectures. Failed mechanisms and negative results are part of the record rather than being hidden.</div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell footer-row">
+      <span>© <span id="year"></span> SENSE Framework</span>
+      <span>Research led by Mark Hatten</span>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('year').textContent = new Date().getFullYear();
+  </script>
 </body>
 </html>
