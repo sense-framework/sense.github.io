@@ -1,0 +1,23 @@
+name: semantic-dataset-bridge
+on:
+  push:
+    branches: [semantic-dataset-bridge-temp]
+    paths:
+      - '.github/workflows/semantic-dataset-bridge.yml'
+  workflow_dispatch:
+
+jobs:
+  bridge:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Create transport proof
+        run: |
+          mkdir -p out
+          printf 'SENSE semantic dataset bridge OK\n' > out/bridge-test.txt
+          sha256sum out/bridge-test.txt > out/SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: semantic-dataset-bridge-test
+          path: out/
+          retention-days: 1
+          if-no-files-found: error
