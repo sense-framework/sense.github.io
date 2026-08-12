@@ -1,0 +1,61 @@
+name: semantic-transfer
+on:
+  push:
+    branches: [semantic-transfer-20260812]
+permissions:
+  contents: write
+jobs:
+  transfer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fetch and normalize public semantic datasets
+        shell: bash
+        run: |
+          set -euxo pipefail
+          mkdir -p semantic_datasets/snli semantic_datasets/paws
+          hf='https://huggingface.co/datasets'
+          curl -fL --retry 5 "$hf/stanfordnlp/snli/resolve/main/plain_text/train-00000-of-00001.parquet?download=true" -o /tmp/snli_train.parquet
+          curl -fL --retry 5 "$hf/stanfordnlp/snli/resolve/main/plain_text/validation-00000-of-00001.parquet?download=true" -o /tmp/snli_validation.parquet
+          curl -fL --retry 5 "$hf/stanfordnlp/snli/resolve/main/plain_text/test-00000-of-00001.parquet?download=true" -o /tmp/snli_test.parquet
+          curl -fL --retry 5 "$hf/google-research-datasets/paws/resolve/main/labeled_final/train-00000-of-00001.parquet?download=true" -o /tmp/paws_train.parquet
+          curl -fL --retry 5 "$hf/google-research-datasets/paws/resolve/main/labeled_final/validation-00000-of-00001.parquet?download=true" -o /tmp/paws_validation.parquet
+          curl -fL --retry 5 "$hf/google-research-datasets/paws/resolve/main/labeled_final/test-00000-of-00001.parquet?download=true" -o /tmp/paws_test.parquet
+          python -m pip install -q pandas pyarrow
+          python - <<'PY'
+          import pandas as pd
+          from pathlib import Path
+          specs=[
+            ('/tmp/snli_train.parquet','semantic_datasets/snli/train.tsv'),
+            ('/tmp/snli_validation.parquet','semantic_datasets/snli/validation.tsv'),
+            ('/tmp/snli_test.parquet','semantic_datasets/snli/test.tsv'),
+            ('/tmp/paws_train.parquet','semantic_datasets/paws/train.tsv'),
+            ('/tmp/paws_validation.parquet','semantic_datasets/paws/validation.tsv'),
+            ('/tmp/paws_test.parquet','semantic_datasets/paws/test.tsv'),
+          ]
+          for src,dst in specs:
+              df=pd.read_parquet(src)
+              Path(dst).parent.mkdir(parents=True,exist_ok=True)
+              if 'premise' in df.columns:
+                  df=df.rename(columns={'premise':'sentence1','hypothesis':'sentence2'})
+                  labels={0:'entailment',1:'neutral',2:'contradiction',-1:'-'}
+                  df['gold_label']=df['label'].map(labels)
+                  df[['gold_label','sentence1','sentence2']].to_csv(dst,sep='\t',index=False)
+              else:
+                  df[['id','sentence1','sentence2','label']].to_csv(dst,sep='\t',index=False)
+              print(dst,len(df))
+          PY
+          find semantic_datasets -type f -print0 | sort -z | xargs -0 sha256sum > semantic_datasets/SHA256SUMS.txt
+          tar -czf semantic-datasets-snli-paws.tar.gz semantic_datasets
+          sha256sum semantic-datasets-snli-paws.tar.gz | tee semantic-datasets-snli-paws.tar.gz.sha256
+      - name: Create temporary release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create semantic-transfer-20260812 \
+            semantic-datasets-snli-paws.tar.gz \
+            semantic-datasets-snli-paws.tar.gz.sha256 \
+            --repo "$GITHUB_REPOSITORY" \
+            --target "$GITHUB_SHA" \
+            --title 'Temporary semantic dataset transfer' \
+            --notes 'Public SNLI and PAWS data only. Temporary transfer release.' \
+            --prerelease
